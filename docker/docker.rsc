@@ -115,7 +115,7 @@
   :global dockerInfo
   :global dockerCreateVeth
   :global printMsg
-  :local hostname ("$name".($dockerInfo->"domainName"))
+  :local hostname ("$name.".($dockerInfo->"domainName"))
 
   :if ([:typeof $name] != "str" || [:len $name] = 0) do={
     $printMsg "Please specify image: debian, pihole or proxy"
@@ -128,19 +128,11 @@
     :return ""
   }  
 
-  $printMsg ("Creating $name container...")
-
   # Creating veth
   :local vethName [$dockerCreateVeth name=$name]
   :local rootDir (($dockerInfo->"usbPartition")."/".($dockerInfo->"rootDir")."/$name")
 
   :if ($name = "pihole") do={
-    # Delete old env variables
-    /container/envs/remove [find name=pihole_envs]
-
-    # Delete old mounts
-    /container/mounts/remove [find name~"pihole"]
-   
     # Add env variables
     /container/envs/add name=pihole_envs key=TZ value=america/los_angeles
     /container/envs/add name=pihole_envs key=WEBPASSWORD value=password123
@@ -163,7 +155,45 @@
   /container/print detail where hostname=$hostname
 }
 
-:global dockerDeleteContainer do={}
+:global dockerDeleteContainer do={
+  :global dockerInfo
+  :global dockerDeleteVeth
+  :global printMsg
+  :local hostname ("$name.".($dockerInfo->"domainName"))
+
+  # Validation
+  :if ([:typeof $name] != "str" || [:len $name] = 0) do={
+    $printMsg "Please specify image: debian, pihole or proxy"
+    :return ""
+  }
+
+  :if ([:len [/container/find hostname=$hostname]] = 0) do={
+    $printMsg ("Container with hostname $hostname does not exist!")
+    :return ""
+  }
+
+  # Stopping container
+  $printMsg "Stopping container..."
+  /container/stop [find hostname=$hostname]
+  :do {} while ([/container/get [find hostname=$hostname] status] != "stopped")
+  $printMsg "Done"
+
+  # Deleting container
+  $printMsg "Deleting container"
+  /container/remove [find hostname=$hostname]
+
+  :if ($name = "pihole") do={
+    $printMsg "Deleting mounts and envs"
+    # Delete env variables
+    /container/envs/remove [find name=pihole_envs]
+    # Delete mounts
+    /container/mounts/remove [find name~"pihole"]
+  }
+
+  # Deleting veth
+  $printMsg "Deleting veth"
+  $dockerDeleteVeth name=$name
+}
 
 :global dockerCreateVeth do={
   :global dockerInfo
