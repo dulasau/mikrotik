@@ -30,7 +30,7 @@ set layer-dir=usb1-part1/layer registry-url=https://registry-1.docker.io tmpdir=
   add key=TZ name=pihole_envs value=America/Los_Angeles
 }
 :if ([:len [find key=WEBPASSWORD name=pihole_envs]] = 0) do={
-  add key=WEBPASSWORD name=pihole_envs value=password123
+  add key=WEBPASSWORD name=pihole_envs value=$piholePassword
 }
 :if ([:len [find key=DNSMASQ_LISTENING name=pihole_envs]] = 0) do={
   add key=DNSMASQ_LISTENING name=pihole_envs value=all
