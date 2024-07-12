@@ -24,6 +24,7 @@
 set layer-dir=usb1-part1/layer registry-url=https://registry-1.docker.io tmpdir=usb1-part1/pull
 
 ########################################## Creating envs #########################################
+:global piholePassword
 /container envs
 
 :if ([:len [find key=TZ name=pihole_envs]] = 0) do={
