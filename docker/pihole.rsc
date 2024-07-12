@@ -48,4 +48,4 @@ set layer-dir=usb1-part1/layer registry-url=https://registry-1.docker.io tmpdir=
 
 ###################################### Creating container #######################################
 /container
-add envlist=pihole_envs interface=docker-pihole-veth mounts=pihole_etc,pihole_dnsmasq root-dir=usb1-part1/pihole start-on-boot=yes
+add remote-image=pihole/pihole:latest envlist=pihole_envs interface=docker-pihole-veth mounts=pihole_etc,pihole_dnsmasq root-dir=usb1-part1/pihole start-on-boot=yes
